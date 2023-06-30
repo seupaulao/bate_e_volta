@@ -164,9 +164,6 @@ scene("game", ({levelId, coins} = {levelId: 0, coins: 0}) => {
 		}
 	})
 
-	//k.onUpdate("player", (p) => {
-	//	p.move(p.dir * p.speed, SPEEDPLAYER)
-	//})
 	
 	k.onClick(() => {
 		if (player.isGrounded()) {
