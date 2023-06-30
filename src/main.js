@@ -22,35 +22,31 @@ k.setGravity(1600)
 
 //****** Habilidades *********
 //
-//OK 1. carregar os niveis
-//2. movimento de pregar na parede
+//OK 1. carregar os niveis, player andando sozinho, player bate e volta
+//2. movimento de pregar na parede - DIFICIL
 //3. nadar
 //4. tile trampoline
-//5. tile parar
+//   - força normal
+//   - força multiplicada
 //7. atirar
 //8. pulo duplo com mortal
 //OK 9. tile que mata
 //10. inimigos simples
 //11. inimigos simples que voam
 //12. chefe de fase
-//13. chefe do portal
-//14. historia
 //15. npc
 //
 //cena 01
 //menu principal 
 //   - iniciar jogo
 //   - opcoes
-//cena 02
-//menu opcoes
-//   - volume musica
-//   - volume fx
-//cena 03 portal
-//  - niveis
-//cena 04 - jogo
-//cena 05 - game over
+//cena 03 seletor de niveis
+//OK cena 04 - jogo
+//PARCIAL cena 05 - game over
 //  - tentar novamente [video ad]
 //  - ir para cena niveis
+//OK cena 06 - vitoria
+//   - exibir score
 
 const LEVELS = [
 	[
@@ -94,6 +90,7 @@ const levelConf = {
 			k.area(),
 			k.body({ isStatic: true }),
 			k.anchor("bot"),
+			k.offscreen({ hide: true }),
 			"piso",
 		],
 		"$": () => [
@@ -112,15 +109,6 @@ const levelConf = {
 			k.offscreen({ hide: true }),
 			"danger",
 		],
-//		"e": () => [
-//			sprite("ghosty"),
-//			area(),
-//			anchor("bot"),
-//			body(),
-//			patrol(),
-//			offscreen({ hide: true }),
-//			"enemy",
-//		],
 		"@": () => [
 			k.sprite("portal"),
 			k.area({ scale: 0.5 }),
@@ -133,6 +121,22 @@ const levelConf = {
 }
 
 
+function patrol(speed = 60, dir = 1) {
+	return {
+		id: "patrol",
+		require: [ "pos", "area" ],
+		add() {
+			this.on("collide", (obj, col) => {
+				if (col.isLeft() || col.isRight()) {
+					dir = -dir
+				}
+			})
+		},
+		update() {
+			this.move(speed * dir, 0)
+		},
+	}
+}
 
 
 scene("game", ({levelId, coins} = {levelId: 0, coins: 0}) => {
@@ -184,7 +188,7 @@ scene("game", ({levelId, coins} = {levelId: 0, coins: 0}) => {
 	})
 
 	//problema = pega a quina do objeto
-	//fazer o objeto player sozinho em mapa montado eh um grande problema
+	//fazer o objeto player mover sozinho em mapa montado eh um grande problema
 	//terei tiles de piso e outros de parede
 
 
@@ -213,19 +217,21 @@ scene("game", ({levelId, coins} = {levelId: 0, coins: 0}) => {
 
 scene("perdeu", () => {
 	add([
-		text("Perdeu Playboy!")
+		text("Perdeu Playboy!",{align: "center"}),
+		pos((width()-128)/2, height()/2),
+		color(255,0,0),
 	])
 	onKeyPress(() => go("game"))
+	onClick(() => go("game"))
 })
 
-scene("vitoria", (coins) => {
+scene("vitoria", ({score}) => {
 	add([
-		text("Voce Ganhou!!!"),
-		pos(12),
-		text("Voce pegou "+coins+" moedas!!!!", {width: width()}),
-		pos(24,24)
+		text(`Voce pegou ${score} moedas!!!!`),
+		pos(240,240)
 	])
 	onKeyPress(() => go("game"))
+	onClick(() => go("game"))
 })
 
 go("game")
